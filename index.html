@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>載入中...</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    // 你的 GAS 基礎網址
+    const GAS_BASE_URL = "https://script.google.com/macros/s/AKfycbwD97bdIZWBUnWFj7hJ7WsEQ-3blhfF-r9yVOQ8deZVqLHeQBUegbiRQwgmR6mHy-Be/exec";
+
+    window.onload = function() {
+      // 取得 LIFF 傳入的查詢參數 (例如 ?code=ABC123)
+      const queryParams = window.location.search;
+      const targetUrl = GAS_BASE_URL + queryParams;
+
+      // 初始化 LIFF
+      liff.init({ liffId: "2011171926-5RfglrCz" })
+        .then(() => {
+          // 直接在 LINE 內部視窗開啟目標 GAS 網址
+          liff.openWindow({
+            url: targetUrl,
+            external: false
+          });
+          // 關閉目前的中繼空白頁
+          liff.closeWindow();
+        })
+        .catch((err) => {
+          console.error("LIFF 初始化失敗，使用標準轉址", err);
+          // 若在一般瀏覽器點開，直接轉址
+          window.location.replace(targetUrl);
+        });
+    };
+  </script>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 80vh; font-family: sans-serif; color: #555;">
+  <p>正在為您載入頁面，請稍候...</p>
+</body>
+</html>
