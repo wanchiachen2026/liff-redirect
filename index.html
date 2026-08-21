@@ -2,22 +2,38 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>載入中...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>App</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+    #gas-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <iframe id="gas-frame" src="about:blank" allow="camera; microphone; geolocation"></iframe>
+
   <script>
     const GAS_BASE_URL = "https://script.google.com/macros/s/AKfycbwD97bdIZWBUnWFj7hJ7WsEQ-3blhfF-r9yVOQ8deZVqLHeQBUegbiRQwgmR6mHy-Be/exec";
 
-    window.onload = function() {
-      // 取得 LIFF 傳入的查詢參數 (例如 ?code=ABC123)
-      const queryParams = window.location.search;
-      const targetUrl = GAS_BASE_URL + queryParams;
+    // 取得當前網址的所有 query 參數 (例如 ?code=ABC123)
+    const queryParams = window.location.search;
+    const targetUrl = GAS_BASE_URL + queryParams;
 
-      // 使用 replace 在當前 Tall 視窗內直接轉址，不開啟新視窗
-      window.location.replace(targetUrl);
-    };
+    // 將 iframe 的 src 指向帶有參數的 GAS 網址
+    document.getElementById('gas-frame').src = targetUrl;
   </script>
-</head>
-<body style="display: flex; justify-content: center; align-items: center; height: 80vh; font-family: sans-serif; color: #666;">
-  <p>正在載入頁面...</p>
 </body>
 </html>
