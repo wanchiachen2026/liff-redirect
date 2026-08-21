@@ -1,1 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>App</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+    #gas-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
 
+  <iframe id="gas-frame" src="about:blank" allow="camera; microphone; geolocation"></iframe>
+
+  <script>
+    const GAS_BASE_URL = "https://script.google.com/macros/s/AKfycbwD97bdIZWBUnWFj7hJ7WsEQ-3blhfF-r9yVOQ8deZVqLHeQBUegbiRQwgmR6mHy-Be/exec";
+
+    // 取得當前網址的所有 query 參數 (例如 ?code=ABC123)
+    const queryParams = window.location.search;
+    const targetUrl = GAS_BASE_URL + queryParams;
+
+    // 將 iframe 的 src 指向帶有參數的 GAS 網址
+    document.getElementById('gas-frame').src = targetUrl;
+  </script>
+</body>
+</html>
