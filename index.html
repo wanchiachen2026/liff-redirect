@@ -23,16 +23,17 @@
 </head>
 <body>
 
-  <iframe id="gas-frame" src="about:blank" allow="camera; microphone; geolocation"></iframe>
+  <iframe id="gas-frame" src="about:blank"></iframe>
 
   <script>
-    const GAS_BASE_URL = "https://script.google.com/macros/s/AKfycbwD97bdIZWBUnWFj7hJ7WsEQ-3blhfF-r9yVOQ8deZVqLHeQBUegbiRQwgmR6mHy-Be/exec";
+    // 替換為你的 Cloudflare Worker 網址
+    const PROXY_BASE_URL = "https://wandering-darkness-d8f6.wanchiachen98.workers.dev";
 
     // 取得當前網址的所有 query 參數 (例如 ?code=ABC123)
     const queryParams = window.location.search;
-    const targetUrl = GAS_BASE_URL + queryParams;
+    const targetUrl = PROXY_BASE_URL + queryParams;
 
-    // 將 iframe 的 src 指向帶有參數的 GAS 網址
+    // 載入經過代理移除防護標頭的頁面
     document.getElementById('gas-frame').src = targetUrl;
   </script>
 </body>
