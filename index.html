@@ -1,386 +1,302 @@
+解析語法
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>康是美兌換券</title>
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    :root {
-      --bg-color: #E89F29;        
-      --card-bg: #FFFFFF;
-      --text-main: #333333;
-      --text-gray: #888888;
-      --btn-color: #F5A623;
-      --btn-disabled: #CCCCCC;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>康是美兌換券</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #E89F29;        
+      --card-bg: #FFFFFF;
+      --text-main: #333333;
+      --text-gray: #888888;
+      --btn-color: #F5A623;
+    }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-    .header {
-      background: #fff;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 15px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .header-left { display: flex; align-items: center; gap: 10px; }
-    .back-arrow { font-size: 20px; cursor: pointer; color: #333; user-select: none; }
-    .header-info h1 { font-size: 16px; font-weight: bold; margin: 0; }
-    .header-info p { font-size: 11px; color: #999; margin: 0; line-height: 1; }
-    .close-icon { font-size: 22px; cursor: pointer; color: #333; user-select: none; }
+    .header {
+      background: #fff;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .back-arrow { font-size: 20px; cursor: pointer; color: #333; }
+    .header-info h1 { font-size: 16px; font-weight: bold; margin: 0; }
+    .header-info p { font-size: 11px; color: #ccc; margin: 0; line-height: 1; }
+    .close-icon { font-size: 22px; cursor: pointer; color: #333; }
 
-    .container {
-      width: 100%;
-      max-width: 480px;  
-      margin: 0 auto;
-      padding: 15px;
-      flex: 1;
-    }
+    .container {
+      width: 100%;
+      max-width: 480px;  
+      margin: 0 auto;
+      padding: 15px;
+      flex: 1;
+    }
 
-    .coupon-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
+    .coupon-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
 
-    .card-top { padding: 20px; }
-    .promo-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 8px; line-height: 1.4; }
-    .expiry-text { font-size: 0.9rem; color: var(--text-gray); margin-bottom: 12px; line-height: 1.5; }
-    .countdown-unit { color: var(--btn-color); font-weight: bold; }
+    .card-top { padding: 20px; }
+    .promo-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 8px; line-height: 1.4; }
+    .expiry-text { font-size: 0.9rem; color: var(--text-gray); margin-bottom: 12px; line-height: 1.5; }
+    .countdown span { color: var(--btn-color); font-weight: bold; }
 
-    .img-container {
-      width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-      background: #f9f9f9;
-      position: relative;
-    }
-    .product-img { width: 100%; height: auto; display: block; }
+    .img-container {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f9f9f9;
+      position: relative;
+    }
+    .product-img { width: 100%; height: auto; display: block; }
 
-    .divider-wrap { position: relative; height: 24px; background: #fff; overflow: hidden; }
-    .divider-line { border-top: 2px dashed #EEE; margin: 11px 15px 0; }
-    .notch { position: absolute; top: 0; width: 22px; height: 22px; background-color: var(--bg-color); border-radius: 50%; }
-    .notch-left { left: -11px; }
-    .notch-right { right: -11px; }
+    .divider-wrap { position: relative; height: 24px; background: #fff; overflow: hidden; }
+    .divider-line { border-top: 2px dashed #EEE; margin: 11px 15px 0; }
+    .notch { position: absolute; top: 0; width: 22px; height: 22px; background-color: var(--bg-color); border-radius: 50%; }
+    .notch-left { left: -11px; }
+    .notch-right { right: -11px; }
 
-    .card-bottom { padding: 10px 20px 25px; text-align: center; }
-    
-    .barcode-area {
-      margin-bottom: 15px;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-    }
-    #barcode { max-width: 100%; height: auto; }
+    .card-bottom { padding: 10px 20px 25px; text-align: center; }
+    
+    .barcode-area {
+      margin-bottom: 15px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    #barcode { max-width: 100%; height: auto; }
 
-    .serial-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #F5F7FA;
-      border-radius: 50px;
-      padding: 12px 20px;
-      margin-bottom: 20px;
-    }
-    .serial-code { font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; color: #333; }
-    .copy-btn { color: #888; cursor: pointer; display: flex; align-items: center; transition: color 0.2s; }
-    .copy-btn:hover { color: #333; }
+    .serial-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #F5F7FA;
+      border-radius: 50px;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+    }
+    .serial-code { font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; color: #333; }
+    .copy-btn { color: #999; cursor: pointer; display: flex; align-items: center; }
 
-    .redeem-btn {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 50px;
-      background: var(--btn-color);
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(245, 166, 35, 0.35);
-      transition: background 0.2s, transform 0.1s;
-    }
-    .redeem-btn:active:not(:disabled) { transform: scale(0.98); }
-    .redeem-btn:disabled {
-      background: var(--btn-disabled);
-      box-shadow: none;
-      cursor: not-allowed;
-    }
+    .redeem-btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 50px;
+      background: var(--btn-color);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(245, 166, 35, 0.35);
+    }
+    .redeem-btn:active { transform: scale(0.98); }
 
-    .terms { padding: 0 10px 40px; color: #fff; font-size: 0.85rem; line-height: 1.6; }
-    .terms h3 { font-size: 1rem; font-weight: normal; margin-bottom: 10px; opacity: 0.95; }
-    .terms ol { padding-left: 24px; opacity: 0.95; text-align: justify; }
-    .terms li { margin-bottom: 6px; }
-
-    /* 輕量 Toast 提示 */
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-      z-index: 1000;
-    }
-    .toast.show { opacity: 1; }
-  </style>
+    .terms { padding: 0 10px 40px; color: #fff; font-size: 0.85rem; line-height: 1.6; }
+    .terms h3 { font-size: 1rem; font-weight: normal; margin-bottom: 10px; opacity: 0.95; }
+    .terms ol { padding-left: 24px; opacity: 0.95; text-align: justify; }
+    .terms li { margin-bottom: 6px; }
+  </style>
 </head>
 <body>
 
-  <div class="header">
-    <div class="header-left">
-      <div class="back-arrow" onclick="handleBack()">❮</div>
-      <div class="header-info">
-        <h1>康是美</h1>
-        <p>liff.cresclab.com</p>
-      </div>
-    </div>
-    <div class="close-icon" onclick="handleClose()">✕</div>
-  </div>
+  <div class="header">
+    <div class="header-left">
+      <div class="back-arrow" onclick="history.back()">❮</div>
+      <div class="header-info">
+        <h1>康是美</h1>
+        <p>liff.cresclab.com</p>
+      </div>
+    </div>
+    <div class="close-icon" onclick="window.close()">✕</div>
+  </div>
 
-  <div class="container">
-    <div class="coupon-card">
-      
-      <div class="card-top">
-        <div class="promo-title">酷聖石小杯經典冰淇淋+原味脆餅</div>
-        <div class="expiry-text" id="expiry-banner">
-          使用期限：剩 <span class="countdown-unit" id="cd-days">--</span> 天 <span class="countdown-unit" id="cd-hours">--</span> 小時 <span class="countdown-unit" id="cd-mins">--</span> 分<br>
-          至 2026-12-31 23:59 到期
-        </div>
-        
-        <div class="img-container">
-          <img src="https://drive.google.com/thumbnail?id=1m_u1UMUG-qYjgvo9ZVJqkjIWOMxRjQP8&sz=w1000" class="product-img" alt="Cold Stone 兌換商品圖">
-        </div>
-      </div>
+  <div class="container">
+    <div class="coupon-card">
+      
+      <div class="card-top">
+        <div class="promo-title">酷聖石小杯經典冰淇淋+原味脆餅</div>
+        <div class="expiry-text">
+          使用期限：剩 <span class="countdown" id="cd-days">30</span> 天 <span class="countdown" id="cd-hours">10</span> 小時 <span class="countdown" id="cd-mins">00</span> 分<br>
+          至 2026-12-31 23:59 到期
+        </div>
+        
+        <div class="img-container">
+          <img src="https://drive.google.com/thumbnail?id=1m_u1UMUG-qYjgvo9ZVJqkjIWOMxRjQP8&sz=w1000" class="product-img" alt="Cold Stone Image">
+        </div>
+      </div>
 
-      <div class="divider-wrap">
-        <div class="notch notch-left"></div>
-        <div class="divider-line"></div>
-        <div class="notch notch-right"></div>
-      </div>
+      <div class="divider-wrap">
+        <div class="notch notch-left"></div>
+        <div class="divider-line"></div>
+        <div class="notch notch-right"></div>
+      </div>
 
-      <div class="card-bottom">
-        <div style="font-size: 14px; color: #888; margin-bottom: 8px;">您的序號</div>
-        
-        <div class="barcode-area">
-          <svg id="barcode"></svg>
-        </div>
+      <div class="card-bottom">
+        <div style="font-size: 14px; color: #888; margin-bottom: 8px;">您的序號</div>
+        
+        <div class="barcode-area">
+          <svg id="barcode"></svg>
+        </div>
 
-        <div class="serial-row">
-          <span class="serial-code" id="serial-display">LOADING...</span>
-          <div class="copy-btn" onclick="copySerial()" title="複製序號">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
-          </div>
-        </div>
+        <div class="serial-row">
+          <span class="serial-code" id="serial-display">LOADING...</span>
+          <div class="copy-btn" onclick="copySerial()">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </div>
+        </div>
 
-        <button class="redeem-btn" id="redeem-btn" onclick="handleRedeem()">點我兌換</button>
-      </div>
-    </div>
+        <button class="redeem-btn" onclick="alert('請出示給店員進行核銷')">點我兌換</button>
+      </div>
+    </div>
 
-    <div class="terms">
-      <h3>注意事項：</h3>
-      <ol>
-        <li>兌換期限至2026/12/31，逾期無效，每張限於酷聖石冰淇淋直營門市兌換一份，實際兌換依門市可提供之口味為主。</li>
-        <li>請持本券序號至各酷聖石冰淇淋直營門市兌換，兌換時需透過康是美官方LINE開啟本優惠券，翻拍、截圖、影印紙本等方式恕無法兌換。</li>
-        <li>恕無法於外送平台與7-ELEVEN酷聖石複合店兌換。</li>
-        <li>冰淇淋口味以門市現有為主，商品僅為情境示意，以現場實際商品為主。</li>
-      </ol>
-    </div>
-  </div>
+    <div class="terms">
+      <h3>注意事項：</h3>
+      <ol>
+        <li>兌換期限至2026/12/31，逾期無效，每張限於酷聖石冰淇淋直營門市兌換一份，實際兌換依門市可提供之口味為主</li>
+        <li>請持本券序號至各酷聖石冰淇淋直營門市兌換，兌換時需透過康是美官方LINE開啟本優惠券，翻拍、截圖、影印紙本等方式恕無法兌換。</li>
+        <li>恕無法於外送平台與7-ELEVEN酷聖石複合店兌換。</li>
+        <li>冰淇淋口味以門市現有為主，商品僅為情境示意，以現場實際商品為主。</li>
+      </ol>
+    </div>
+  </div>
 
-  <div id="toast" class="toast"></div>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  // 萬用解析器（支援全網址正規表達式暴力比對）
+  function extractCode() {
+    const fullUrl = window.location.href;
 
-  <script>
-    const CONFIG = {
-      liffId: "2011171926-0RvdsBKX",
-      defaultCode: "TS41PT6J7A3",
-      targetExpiry: "2026-12-31T23:59:59"
-    };
+    // 1. 正規表達式直接比對 code= 或 code%3D
+    const regexMatch = fullUrl.match(/[?&#]code[=%3D]([^&#]+)/i);
+    if (regexMatch && regexMatch[1]) {
+      return decodeURIComponent(regexMatch[1]);
+    }
 
-    let countdownInterval = null;
+    // 2. liff.state 深度比對
+    const urlParams = new URLSearchParams(window.location.search);
+    const state = urlParams.get('liff.state');
+    if (state) {
+      const decodedState = decodeURIComponent(state);
+      const stateMatch = decodedState.match(/[?&]code=([^&]+)/i);
+      if (stateMatch && stateMatch[1]) return decodeURIComponent(stateMatch[1]);
+    }
 
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.innerText = message;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
-    }
+    return null;
+  }
 
-    function extractCode() {
-      const fullUrl = window.location.href;
+  window.onload = async function() {
+    // 1. 先嘗試從當前 URL 抓取
+    let code = extractCode();
 
-      // 1. 直匹配 code= 或 code%3D（支援 search 與 hash）
-      const regexMatch = fullUrl.match(/[?&#]code(?:=|%3D)([^&#]+)/i);
-      if (regexMatch && regexMatch[1]) {
-        return decodeURIComponent(regexMatch[1]);
-      }
+    // 2. 初始化 LIFF（若有引入 SDK）
+    try {
+      if (window.liff) {
+        await liff.init({ liffId: "2011171926-0RvdsBKX" });
+        // 初始化後若原先沒抓到，再重試抓一次（LIFF 初始化有時會重寫網址）
+        if (!code) {
+          code = extractCode();
+        }
+      }
+    } catch (e) {
+      console.warn("LIFF init warning:", e);
+    }
 
-      // 2. LIFF state 參數解析
-      const urlParams = new URLSearchParams(window.location.search);
-      const state = urlParams.get('liff.state');
-      if (state) {
-        const decodedState = decodeURIComponent(state);
-        const stateMatch = decodedState.match(/[?&]code=([^&]+)/i);
-        if (stateMatch && stateMatch[1]) {
-          return decodeURIComponent(stateMatch[1]);
-        }
-      }
+    // 3. 設定序號（若完全沒抓到才用預設值）
+    const finalCode = code || "TS41PT6J7A3";
+    updateDisplay(finalCode);
+    startCountdown();
 
-      return null;
-    }
+    // 除錯：在畫面下方印出目前實際接收到的完整 URL
+    showDebugInfo(finalCode);
+  };
 
-    function updateDisplay(code) {
-      document.getElementById('serial-display').innerText = code;
-      try {
-        JsBarcode("#barcode", code, {
-          format: "CODE128",
-          lineColor: "#000",
-          width: 2,
-          height: 55,
-          displayValue: false,
-          margin: 0
-        });
-      } catch (e) {
-        console.error("Barcode generation failed:", e);
-      }
-    }
+  function updateDisplay(code) {
+    document.getElementById('serial-display').innerText = code;
+    try {
+      JsBarcode("#barcode", code, {
+        format: "CODE128",
+        lineColor: "#000",
+        width: 2,
+        height: 60,
+        displayValue: false,
+        margin: 0
+      });
+    } catch(e) {
+      console.error(e);
+    }
+  }
 
-    function startCountdown() {
-      const target = new Date(CONFIG.targetExpiry).getTime();
-      const daysEl = document.getElementById("cd-days");
-      const hoursEl = document.getElementById("cd-hours");
-      const minsEl = document.getElementById("cd-mins");
-      const btn = document.getElementById("redeem-btn");
+  function showDebugInfo(parsedCode) {
+    let debugDiv = document.getElementById('debug-box');
+    if (!debugDiv) {
+      debugDiv = document.createElement('div');
+      debugDiv.id = 'debug-box';
+      debugDiv.style.cssText = "background: #fff; color: #d00; padding: 10px; margin: 15px; border-radius: 8px; font-size: 11px; word-break: break-all; border: 1px dashed red;";
+      document.querySelector('.container').appendChild(debugDiv);
+    }
+    debugDiv.innerHTML = `
+      <b>[除錯資訊]</b><br>
+      <b>解析結果：</b> ${parsedCode}<br>
+      <b>目前完整網址：</b> ${window.location.href}
+    `;
+  }
 
-      function update() {
-        const now = Date.now();
-        const distance = target - now;
+  function copySerial() {
+    var text = document.getElementById('serial-display').innerText;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => alert("已複製序號: " + text));
+    } else {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      alert("已複製序號");
+    }
+  }
 
-        if (distance <= 0) {
-          if (countdownInterval) clearInterval(countdownInterval);
-          daysEl.innerText = "0";
-          hoursEl.innerText = "00";
-          minsEl.innerText = "00";
-          
-          btn.disabled = true;
-          btn.innerText = "已過期";
-          return;
-        }
-
-        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-
-        daysEl.innerText = d;
-        hoursEl.innerText = String(h).padStart(2, '0');
-        minsEl.innerText = String(m).padStart(2, '0');
-      }
-
-      update();
-      countdownInterval = setInterval(update, 1000);
-    }
-
-    async function copySerial() {
-      const text = document.getElementById('serial-display').innerText;
-      if (text === "LOADING...") return;
-
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          const ta = document.createElement("textarea");
-          ta.value = text;
-          ta.style.position = "fixed";
-          ta.style.opacity = "0";
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          document.body.removeChild(ta);
-        }
-        showToast("已複製序號：" + text);
-      } catch (err) {
-        showToast("複製失敗，請手動選取");
-      }
-    }
-
-    function handleRedeem() {
-      alert('請出示給店員進行核銷');
-    }
-
-    function handleBack() {
-      if (window.history.length > 1) {
-        window.history.back();
-      } else if (window.liff && liff.isInClient()) {
-        liff.closeWindow();
-      }
-    }
-
-    function handleClose() {
-      if (window.liff && liff.isInClient()) {
-        liff.closeWindow();
-      } else {
-        window.close();
-      }
-    }
-
-    function checkDebugMode(code) {
-      const urlParams = new URLSearchParams(window.location.search);
-      urlParams.get('debug')='false'
-      if (urlParams.get('debug') === 'true') {
-        const debugDiv = document.createElement('div');
-        debugDiv.style.cssText = "background: #fff; color: #d00; padding: 10px; margin: 15px; border-radius: 8px; font-size: 11px; word-break: break-all; border: 1px dashed red;";
-        debugDiv.innerHTML = `
-          <b>[除錯模式]</b><br>
-          <b>解析序號：</b> ${code}<br>
-          <b>完整網址：</b> ${window.location.href}
-        `;
-        document.querySelector('.container').appendChild(debugDiv);
-      }
-    }
-
-    window.onload = async function() {
-      let code = extractCode();
-
-      if (window.liff) {
-        try {
-          await liff.init({ liffId: CONFIG.liffId });
-          if (!code) code = extractCode();
-        } catch (e) {
-          console.warn("LIFF init warning:", e);
-        }
-      }
-
-      const finalCode = code || CONFIG.defaultCode;
-      updateDisplay(finalCode);
-      startCountdown();
-      checkDebugMode(finalCode);
-    };
-  </script>
+  function startCountdown() {
+    var target = new Date("2026-12-31T23:59:59").getTime();
+    setInterval(function() {
+      var now = new Date().getTime();
+      var distance = target - now;
+      if (distance < 0) {
+        document.getElementById("cd-days").innerText = "00";
+        return;
+      }
+      var d = Math.floor(distance / (1000 * 60 * 60 * 24));
+      var h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      document.getElementById("cd-days").innerText = d;
+      document.getElementById("cd-hours").innerText = h;
+      document.getElementById("cd-mins").innerText = m;
+    }, 1000);
+  }
+</script>
 </body>
 </html>
