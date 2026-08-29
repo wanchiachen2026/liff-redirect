@@ -271,39 +271,46 @@
       }
     }
 
-    function startCountdown() {
+        function startCountdown() {
       const target = new Date(CONFIG.targetExpiry).getTime();
       const daysEl = document.getElementById("cd-days");
       const hoursEl = document.getElementById("cd-hours");
       const minsEl = document.getElementById("cd-mins");
+      const secsEl = document.getElementById("cd-secs");
       const btn = document.getElementById("redeem-btn");
-
+    
+      if (countdownInterval) clearInterval(countdownInterval);
+    
       function update() {
-        const now = Date.now();
-        const distance = target - now;
-
+        const distance = target - Date.now();
+    
         if (distance <= 0) {
-          if (countdownInterval) clearInterval(countdownInterval);
-          daysEl.innerText = "0";
-          hoursEl.innerText = "00";
-          minsEl.innerText = "00";
-          
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          daysEl.textContent = "0";
+          hoursEl.textContent = "00";
+          minsEl.textContent = "00";
+          secsEl.textContent = "00";
           btn.disabled = true;
-          btn.innerText = "已過期";
+          btn.textContent = "已過期";
           return;
         }
-
-        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-
-        daysEl.innerText = d;
-        hoursEl.innerText = String(h).padStart(2, '0');
-        minsEl.innerText = String(m).padStart(2, '0');
+    
+        const totalSeconds = Math.floor(distance / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+    
+        daysEl.textContent = days;
+        hoursEl.textContent = String(hours).padStart(2, "0");
+        minsEl.textContent = String(minutes).padStart(2, "0");
+        secsEl.textContent = String(seconds).padStart(2, "0");
       }
-
+    
       update();
       countdownInterval = setInterval(update, 1000);
+    }
     }
 
     async function copySerial() {
@@ -351,7 +358,7 @@
 
     function checkDebugMode(code) {
       const urlParams = new URLSearchParams(window.location.search);
-      urlParams.get('debug')='false'
+      
       if (urlParams.get('debug') === 'true') {
         const debugDiv = document.createElement('div');
         debugDiv.style.cssText = "background: #fff; color: #d00; padding: 10px; margin: 15px; border-radius: 8px; font-size: 11px; word-break: break-all; border: 1px dashed red;";
